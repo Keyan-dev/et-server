@@ -62,3 +62,4 @@ coverage/
 # If you use a custom build output directory, replace 'build' with its name.
 *.tmp
 *.bak
+/src/generated/prisma

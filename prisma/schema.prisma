@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id            Int             @id @default(autoincrement())
+  name          String
+  email         String          @unique
+  password      String
+  is_deleted    Boolean         @default(false)
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  goals_tracker goals_tracker[]
+  daily_tracker daily_tracker[]
+}
+
+model category {
+  id              Int             @id @default(autoincrement())
+  name            String
+  is_active       Boolean         @default(false)
+  is_deleted      Boolean         @default(false)
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+  daily_trackerId Int
+  daily_tracker   daily_tracker[]
+  sub_category    sub_category[]
+}
+
+model sub_category {
+  id            Int             @id @default(autoincrement())
+  name          String
+  is_active     Boolean         @default(false)
+  is_deleted    Boolean         @default(false)
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  category_id   Int
+  category      category        @relation(fields: [category_id], references: [id])
+  daily_tracker daily_tracker[]
+}
+
+model payment_mode {
+  id            Int             @id @default(autoincrement())
+  name          String
+  code          String
+  is_active     Boolean         @default(false)
+  is_deleted    Boolean         @default(false)
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  daily_tracker daily_tracker[]
+}
+
+enum Status {
+  NOTSTARTED
+  PENDING
+  COMPLETED
+}
+
+model goals_tracker {
+  id            Int      @id @default(autoincrement())
+  name          String
+  target_amount BigInt
+  saved_amount  BigInt
+  targetDate    DateTime
+  status        Status   @default(NOTSTARTED)
+  is_deleted    Boolean  @default(false)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  user_id       Int
+  users         users    @relation(fields: [user_id], references: [id])
+}
+
+model daily_tracker {
+  id              Int          @id @default(autoincrement())
+  date            DateTime
+  amount          BigInt
+  notes           String
+  is_deleted      Boolean      @default(false)
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+  user_id         Int
+  users           users        @relation(fields: [user_id], references: [id])
+  category_id     Int
+  category        category     @relation(fields: [category_id], references: [id])
+  sub_category_id Int
+  sub_category    sub_category @relation(fields: [sub_category_id], references: [id])
+  payment_mode_id Int
+  payment_mode    payment_mode @relation(fields: [payment_mode_id], references: [id])
+}
