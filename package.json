@@ -1,0 +1,35 @@
+{
+  "name": "et-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon --exec ts-node src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Keyan-dev/et-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Keyan-dev/et-server/issues"
+  },
+  "homepage": "https://github.com/Keyan-dev/et-server#readme",
+  "description": "",
+  "devDependencies": {
+    "@types/express": "5.0.3",
+    "@types/node": "22.15.32",
+    "prisma": "6.9.0",
+    "ts-node": "10.9.2",
+    "typescript": "5.8.2"
+  },
+  "dependencies": {
+    "@prisma/client": "6.9.0",
+    "@prisma/extension-accelerate": "2.0.2",
+    "dotenv": "^17.2.1",
+    "express": "5.1.0",
+    "nodemon": "^3.1.10"
+  }
+}
