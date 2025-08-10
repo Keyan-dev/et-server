@@ -64,7 +64,7 @@ model goals_tracker {
   name          String
   target_amount BigInt
   saved_amount  BigInt
-  targetDate    DateTime
+  target_date   DateTime
   status        Status   @default(NOTSTARTED)
   is_deleted    Boolean  @default(false)
   created_at    DateTime @default(now())
