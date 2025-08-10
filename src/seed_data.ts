@@ -92,3 +92,4 @@ export const category = [
         ]
     }
 ];
+export const paymentModes = ['UPI', 'CASH', 'CREDIT CARD', 'AUTO PAY', 'BANK'];

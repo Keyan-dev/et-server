@@ -20,15 +20,14 @@ model users {
 }
 
 model category {
-  id              Int             @id @default(autoincrement())
-  name            String
-  is_active       Boolean         @default(false)
-  is_deleted      Boolean         @default(false)
-  created_at      DateTime        @default(now())
-  updated_at      DateTime        @updatedAt
-  daily_trackerId Int
-  daily_tracker   daily_tracker[]
-  sub_category    sub_category[]
+  id            Int             @id @default(autoincrement())
+  name          String
+  is_active     Boolean         @default(false)
+  is_deleted    Boolean         @default(false)
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  daily_tracker daily_tracker[]
+  sub_category  sub_category[]
 }
 
 model sub_category {
