@@ -4,10 +4,12 @@ import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import type { Request, Response } from 'express';
+import cors from 'cors'
 const prisma = new PrismaClient();
 dotenv.config();
 const app = express();
 app.use(express.json());
+app.use(cors());
 app.get('', (req, res) => { res.status(200).send('<h3>server is running</h3>'); });
 (BigInt.prototype as any).toJSON = function () {
   const int = Number.parseInt(this.toString());
@@ -116,7 +118,6 @@ app.post('/daily_tracker', authMiddleware, async (req, res) => {
 })
 //server listning
 const server = app.listen(process.env.port, () =>
-  console.log(`
-🚀 Server ready at: http://localhost:${process.env.port}`),
+  console.log(`🚀 Server ready at: http://localhost:${process.env.port}`),
 )
 
