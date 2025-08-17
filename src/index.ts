@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import type { Request, Response } from 'express';
 import cors from 'cors'
+import { dailyTrackerSelect } from './constants';
 const prisma = new PrismaClient();
 dotenv.config();
 const app = express();
@@ -53,7 +54,7 @@ app.post('/create-user', async (req, res) => {
   if (req.body) {
     const passwordHash = await bcrypt.hash(req.body.password, 10);
     const createUsers = await prisma.users.create({ data: { ...req.body, password: passwordHash } });
-    res.status(200).json(createUsers);
+    res.status(200).json({ ...createUsers, password: null });
   }
   else {
     res.status(400).json({ message: 'Invalid input data' });
@@ -106,7 +107,7 @@ app.post('/goals', authMiddleware, async (req, res) => {
 app.get('/daily_tracker', authMiddleware, async (req, res) => {
   const user_id = (req as any)?.user?.id;
   if (!user_id) { res.status(200).json({ count: 0, data: [] }); return; };
-  const daily_tracker_details = await prisma.daily_tracker.findMany({ where: { is_deleted: false, user_id } });
+  const daily_tracker_details = await prisma.daily_tracker.findMany({ select: dailyTrackerSelect, where: { is_deleted: false, user_id } });
   return res.status(200).json({ data: daily_tracker_details, count: daily_tracker_details.length });
 });
 //create daily tracker
@@ -115,6 +116,41 @@ app.post('/daily_tracker', authMiddleware, async (req, res) => {
   if (!user_id) res.status(401).json({ message: 'user details not found' });
   const createDailyTracker = await prisma.daily_tracker.create({ data: { ...req.body, user_id } });
   return res.status(200).json({ createDailyTracker });
+})
+//get current user details
+app.get('/current-user', authMiddleware, async (req, res) => {
+  const user_id = (req as any)?.user?.id;
+  if (!user_id) { res.status(200).json({ count: 0, data: [] }); return; };
+  const userData = await prisma.users.findUnique({ where: { is_deleted: false, id: user_id } });
+  return res.status(200).json({ userData });
+})
+//dashboard api
+app.get('/dashboard', authMiddleware, async (req, res) => {
+  const user_id = (req as any)?.user?.id;
+  if (!user_id) { res.status(200).json({ count: 0, data: [] }); return; };
+  const totalCount = await prisma.daily_tracker.count({ select: { _all: true, category_id: true, payment_mode_id: true, sub_category_id: true }, where: { is_deleted: false, user_id: user_id } });
+  const sum = await prisma.daily_tracker.aggregate({ _sum: { amount: true }, where: { is_deleted: false, user_id, category: { is_deleted: false, NOT: { name: 'Income' } } } })
+  const income = await prisma.daily_tracker.aggregate({ _sum: { amount: true }, where: { is_deleted: false, user_id, category: { name: 'Income' } } });
+  return res.status(200).json({ ...totalCount, sum: sum._sum.amount, income: income._sum.amount });
+})
+/**
+ * Edit daily tracker
+ */
+app.put('/daily_tracker', authMiddleware, async (req, res) => {
+  const user_id = (req as any)?.user?.id;
+  if (!user_id) res.status(401).json({ message: 'user details not found' });
+  const updateDailyTracker = await prisma.daily_tracker.update({ where: { user_id, id: req.body.id }, data: req.body });
+  return res.status(200).json({ updateDailyTracker });
+})
+/**
+ * delete expenses
+ */
+app.delete('/daily_tracker/:id', authMiddleware, async (req, res) => {
+  const user_id = (req as any)?.user?.id;
+  const id = +req.params?.id;
+  if (!user_id || !id) res.status(401).json({ message: 'user/daily tracker details not found' });
+  const deleteDailyTracker = await prisma.daily_tracker.update({ where: { user_id, id }, data: { is_deleted: true } });
+  return res.status(200).json({ deleteDailyTracker });
 })
 //server listning
 const server = app.listen(process.env.port, () =>
